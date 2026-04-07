@@ -1,0 +1,60 @@
+{
+  "name": "@agentscore-xyz/mcp-server",
+  "version": "2.0.1",
+  "mcpName": "io.github.Thezenmonster/agentscore",
+  "description": "MCP security trust layer. Scan packages, get trust verdicts, check incident exposure, query abuse database. Five tools for MCP security decisions.",
+  "type": "module",
+  "bin": {
+    "agentscore-mcp": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "scripts": {
+    "clean": "node -e \"const fs=require('fs');fs.rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "mcp-security",
+    "agentscore",
+    "kya",
+    "know-your-agent",
+    "trust",
+    "ai-agents",
+    "ai-security",
+    "reputation",
+    "verification",
+    "agent-trust",
+    "agent-verification",
+    "model-context-protocol",
+    "security",
+    "scanner",
+    "abuse-detection"
+  ],
+  "author": "AgentScore <hello@agentscores.xyz>",
+  "license": "MIT",
+  "homepage": "https://agentscores.xyz",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Thezenmonster/agentscore-mcp-server"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "smithery.yaml"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

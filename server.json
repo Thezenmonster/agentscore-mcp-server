@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Thezenmonster/agentscore",
+  "description": "MCP security trust layer. Scan packages, get trust verdicts, check incident exposure, query abuse database, check monitoring status.",
+  "repository": {
+    "url": "https://github.com/Thezenmonster/agentscore-mcp-server",
+    "source": "github"
+  },
+  "version": "2.0.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@agentscore-xyz/mcp-server",
+      "version": "2.0.1",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
