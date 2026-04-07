@@ -7,7 +7,7 @@ import { handleTool } from "./tools.js";
 
 const server = new McpServer({
   name: "agentscore",
-  version: "2.0.1",
+  version: "2.0.2",
 });
 
 // --- Tools ---

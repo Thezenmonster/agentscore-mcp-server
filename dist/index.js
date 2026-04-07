@@ -5,7 +5,7 @@ import { z } from "zod";
 import { handleTool } from "./tools.js";
 const server = new McpServer({
     name: "agentscore",
-    version: "2.0.0",
+    version: "2.0.2",
 });
 // --- Tools ---
 server.tool("scan_package", "Scan an npm package for MCP security issues. Checks install scripts, prompt injection patterns, suspicious URLs, source code patterns, dependency count, metadata completeness, and publisher provenance. Returns score (0-100), risk level, and detailed findings.", {
