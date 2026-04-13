@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { fetchApi, ApiError } from "./api.js";
 import {
   inspectRepoForMcpDependencies,
@@ -60,7 +62,8 @@ function policyGateHint(options: { repoUrl?: string | null; packageName?: string
     "",
     "Policy Gate:",
     "  Run check_my_repo to inspect every MCP dependency used by this repo.",
-    "  Run generate_policy_gate_setup to turn the same checks into a CI gate.",
+    "  Run generate_policy_gate_setup to preview the CI workflow.",
+    "  Run install_policy_gate to write the workflow file directly into the repo.",
   ];
 
   if (options.repoUrl) {
@@ -286,14 +289,14 @@ function formatRepoSummary(
   lines.push(
     "",
     "Next step:",
-    "  Run generate_policy_gate_setup to get the exact GitHub Actions workflow for this repo.",
-    `  Start a free pilot: ${buildIntentUrl("pilot", repoUrl)}`,
+    "  Run generate_policy_gate_setup to preview the OIDC-based GitHub Actions workflow for this repo.",
+    "  Run install_policy_gate to write .github/workflows/agentscore-policy-gate.yml directly.",
   );
 
   return lines.join("\n");
 }
 
-function buildWorkflowYaml(packages: string[]): string {
+function buildOidcWorkflowYaml(packages: string[]): string {
   const lines = [
     "name: AgentScore Policy Gate",
     "",
@@ -302,6 +305,10 @@ function buildWorkflowYaml(packages: string[]): string {
     "  push:",
     "    branches: [main]",
     "",
+    "permissions:",
+    "  id-token: write",
+    "  contents: read",
+    "",
     "jobs:",
     "  mcp-policy:",
     "    runs-on: ubuntu-latest",
@@ -309,14 +316,14 @@ function buildWorkflowYaml(packages: string[]): string {
     "      - uses: actions/checkout@v4",
     "      - uses: Thezenmonster/mcp-verdict-action@v1",
     "        with:",
-    "          api-key: ${{ secrets.AGENTSCORE_KEY }}",
-    '          fail-open: "false"',
+    '          fail-on: block',
   ];
 
   if (packages.length > 0) {
     lines.push(`          packages: "${packages.join(",")}"`);
   }
 
+  lines.push("");
   return lines.join("\n");
 }
 
@@ -327,7 +334,6 @@ function formatPolicyGateSetup(
   checkedFiles: string[],
 ): string {
   const explicitPackages = dependencies.map((dep) => dep.name);
-  const pilotUrl = buildIntentUrl("pilot", repoUrl);
   const lines = [
     `Repo path: ${repoPath}`,
     `Repository: ${repoUrl || "not detected"}`,
@@ -335,11 +341,11 @@ function formatPolicyGateSetup(
     `Detected MCP dependencies: ${explicitPackages.length > 0 ? explicitPackages.join(", ") : "none"}`,
     "",
     "Next steps:",
-    `1. Start a free Policy Gate pilot to get a repo-scoped key: ${pilotUrl}`,
-    "2. Add a GitHub Actions secret named AGENTSCORE_KEY to the repo.",
-    "3. Save this workflow as .github/workflows/agentscore-policy-gate.yml:",
+    "1. Save this workflow as .github/workflows/agentscore-policy-gate.yml.",
+    "2. Commit and push. The first run will authenticate with GitHub OIDC and auto-provision the repo.",
+    "3. If you want the MCP server to write the file for you, run install_policy_gate.",
     "",
-    buildWorkflowYaml(explicitPackages),
+    buildOidcWorkflowYaml(explicitPackages),
   ];
 
   if (explicitPackages.length === 0) {
@@ -351,6 +357,10 @@ function formatPolicyGateSetup(
     );
   } else {
     lines.push(
+      "",
+      "Why this workflow uses OIDC:",
+      "  GitHub Actions proves repo identity directly to AgentScore on each run.",
+      "  No API key, no secret distribution, and no manual provisioning step are required.",
       "",
       "Why this workflow uses an explicit package list:",
       "  It keeps CI aligned with the MCP dependencies detected in this repo, even when they come from config files",
@@ -417,6 +427,39 @@ export async function handleTool(
         const repo = inspectRepoForMcpDependencies(inputPath);
         const repoUrl = normaliseRepositoryUrl(repoUrlArg || repo.repoUrl);
         return text(formatPolicyGateSetup(repo.repoPath, repoUrl, repo.dependencies, repo.checkedFiles));
+      }
+
+      case "install_policy_gate": {
+        const inputPath = typeof args.path === "string" ? args.path : undefined;
+        const repoUrlArg = typeof args.repo_url === "string" ? args.repo_url : undefined;
+        const repo = inspectRepoForMcpDependencies(inputPath);
+        const repoUrl = normaliseRepositoryUrl(repoUrlArg || repo.repoUrl);
+        const packages = repo.dependencies.map((d) => d.name);
+        const yaml = buildOidcWorkflowYaml(packages);
+        const workflowDir = path.join(repo.repoPath, ".github", "workflows");
+        const workflowPath = path.join(workflowDir, "agentscore-policy-gate.yml");
+
+        fs.mkdirSync(workflowDir, { recursive: true });
+        fs.writeFileSync(workflowPath, yaml, "utf8");
+
+        const pilotUrl = buildIntentUrl("pilot", repoUrl);
+        const lines = [
+          `Workflow written to: ${workflowPath}`,
+          "",
+          `Detected ${packages.length} MCP ${packages.length === 1 ? "dependency" : "dependencies"}: ${packages.join(", ") || "none"}`,
+          "",
+          "This workflow uses GitHub OIDC for authentication. No API key or secret needed.",
+          "On first push, AgentScore will auto-provision your repo and return verdicts.",
+          "",
+          "Next steps:",
+          "  1. Review the workflow file",
+          "  2. Commit and push",
+          "  3. The gate runs automatically on every PR and push to main",
+        ];
+        if (pilotUrl) {
+          lines.push("", `If you want a managed pilot with custom thresholds and exceptions: ${pilotUrl}`);
+        }
+        return text(lines.join("\n"));
       }
 
       default:

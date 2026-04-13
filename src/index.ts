@@ -7,7 +7,7 @@ import { handleTool } from "./tools.js";
 
 const server = new McpServer({
   name: "agentscore",
-  version: "2.1.0",
+  version: "2.2.0",
 });
 
 // --- Tools ---
@@ -68,7 +68,7 @@ server.tool(
 
 server.tool(
   "generate_policy_gate_setup",
-  "Generate the exact GitHub Actions workflow needed to enforce AgentScore Policy Gate for a repo. Detects MCP dependencies locally and returns the YAML, secret name, and pilot link needed for setup.",
+  "Generate the exact GitHub Actions workflow needed to enforce AgentScore Policy Gate for a repo. Detects MCP dependencies locally and returns the OIDC-based YAML needed for setup. No API key or secret is required.",
   {
     path: z.string().optional().describe("Optional path to the repo root. Defaults to the current working directory."),
     repo_url: z.string().optional().describe("Optional repository URL override for the pilot handoff link."),
@@ -76,12 +76,22 @@ server.tool(
   async (args) => handleTool("generate_policy_gate_setup", args)
 );
 
+server.tool(
+  "install_policy_gate",
+  "Write the AgentScore Policy Gate workflow file to this repo. Creates .github/workflows/agentscore-policy-gate.yml with OIDC authentication (no API key needed). Detects MCP dependencies and includes them in the workflow. The gate will auto-provision the repo on first push.",
+  {
+    path: z.string().optional().describe("Optional path to the repo root. Defaults to the current working directory."),
+    repo_url: z.string().optional().describe("Optional repository URL override."),
+  },
+  async (args) => handleTool("install_policy_gate", args)
+);
+
 // --- Start ---
 
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("AgentScore MCP server v2.1 running on stdio");
+  console.error("AgentScore MCP server v2.2 running on stdio");
 }
 
 main().catch((err) => {

@@ -1,8 +1,8 @@
 {
   "name": "@agentscore-xyz/mcp-server",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "mcpName": "io.github.Thezenmonster/agentscore",
-  "description": "MCP security trust layer. Scan packages, inspect repo MCP dependencies, generate Policy Gate setup, check exposure, and query abuse data.",
+  "description": "MCP security trust layer. Scan packages, inspect repo MCP dependencies, generate Policy Gate setup, install the workflow directly, check exposure, and query abuse data.",
   "type": "module",
   "bin": {
     "agentscore-mcp": "./dist/index.js"

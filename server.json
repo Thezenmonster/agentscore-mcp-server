@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.Thezenmonster/agentscore",
-  "description": "MCP security trust layer. Scan packages, inspect repo MCP dependencies, generate Policy Gate setup, check exposure, query abuse data, and monitor status.",
+  "description": "MCP security trust layer. Scan packages, inspect repo MCP dependencies, generate Policy Gate setup, install the workflow directly, check exposure, query abuse data, and monitor status.",
   "repository": {
     "url": "https://github.com/Thezenmonster/agentscore-mcp-server",
     "source": "github"
   },
-  "version": "2.1.0",
+  "version": "2.2.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@agentscore-xyz/mcp-server",
-      "version": "2.1.0",
+      "version": "2.2.0",
       "transport": {
         "type": "stdio"
       }

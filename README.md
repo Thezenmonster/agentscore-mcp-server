@@ -1,6 +1,6 @@
 # @agentscore-xyz/mcp-server
 
-MCP security trust layer. Scan packages, get trust verdicts, inspect repo-wide MCP dependencies, generate Policy Gate setup, check incident exposure, and query the abuse database. Seven tools for MCP security decisions. No API key, zero config.
+MCP security trust layer. Scan packages, get trust verdicts, inspect repo-wide MCP dependencies, generate Policy Gate setup, install the CI workflow directly, check incident exposure, and query the abuse database. Eight tools for MCP security decisions. No API key, zero config.
 
 [![KYA Scan](https://agentscores.xyz/api/scan/badge?npm=@agentscore-xyz/mcp-server)](https://agentscores.xyz/scan?npm=@agentscore-xyz/mcp-server)
 
@@ -51,7 +51,7 @@ Your AI can now make security decisions about MCP packages:
 
 > **You:** "Set up AgentScore Policy Gate for this repo"
 >
-> **Claude:** *calls generate_policy_gate_setup* "Here is the exact GitHub Actions workflow, the AGENTSCORE_KEY secret name, and the pilot link for your repo."
+> **Claude:** *calls install_policy_gate* "The workflow file is written to `.github/workflows/agentscore-policy-gate.yml`. Commit and push. GitHub OIDC will auto-provision the repo on first run."
 
 ## Available Tools
 
@@ -60,7 +60,8 @@ Your AI can now make security decisions about MCP packages:
 | `scan_package` | Full security scan: install scripts, prompt injection, source code patterns, provenance posture, MCP tool extraction |
 | `get_verdict` | Trust decision: allow, warn, or block based on scan findings. Also reports monitoring status and publisher posture. |
 | `check_my_repo` | Inspect the current repo for MCP dependencies and summarise verdicts for every package detected locally. |
-| `generate_policy_gate_setup` | Generate the exact GitHub Actions workflow and pilot handoff link needed to enforce Policy Gate in CI. |
+| `generate_policy_gate_setup` | Generate the exact OIDC-based GitHub Actions workflow needed to enforce Policy Gate in CI. |
+| `install_policy_gate` | Write `.github/workflows/agentscore-policy-gate.yml` directly into the repo so the gate is ready to commit. |
 | `check_exposure` | Incident response: which monitored MCP servers depend on a given package? |
 | `check_abuse` | Query the KYA abuse database for reported packages or agents |
 | `monitor_status` | Check if a package is under continuous monitoring and get scan history |
@@ -70,8 +71,9 @@ Your AI can now make security decisions about MCP packages:
 The MCP server now bridges one-off package checks into the sticky product:
 
 1. Run `check_my_repo` to see every MCP package used in a repo.
-2. Run `generate_policy_gate_setup` to get the exact GitHub Actions workflow.
-3. Start the free pilot to receive a repo-scoped `AGENTSCORE_KEY`.
+2. Run `generate_policy_gate_setup` to preview the OIDC-based GitHub Actions workflow.
+3. Run `install_policy_gate` to write the workflow file directly into the repo.
+4. Commit and push. The first run auto-provisions through GitHub OIDC.
 
 That turns "is this package safe?" into "this repo now enforces MCP dependency policy on every PR."
 

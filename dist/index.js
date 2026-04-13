@@ -5,7 +5,7 @@ import { z } from "zod";
 import { handleTool } from "./tools.js";
 const server = new McpServer({
     name: "agentscore",
-    version: "2.1.0",
+    version: "2.2.0",
 });
 // --- Tools ---
 server.tool("scan_package", "Scan an npm package for MCP security issues. Checks install scripts, prompt injection patterns, suspicious URLs, source code patterns, dependency count, metadata completeness, and publisher provenance. Returns score (0-100), risk level, and detailed findings.", {
@@ -26,15 +26,19 @@ server.tool("monitor_status", "Check if an MCP package is under continuous monit
 server.tool("check_my_repo", "Inspect the current repo for MCP dependencies, look up AgentScore verdicts for each package, and summarise what should be gated in CI. Use this when a developer wants to understand all MCP packages in a repo instead of scanning one package at a time.", {
     path: z.string().optional().describe("Optional path to the repo root. Defaults to the current working directory."),
 }, async (args) => handleTool("check_my_repo", args));
-server.tool("generate_policy_gate_setup", "Generate the exact GitHub Actions workflow needed to enforce AgentScore Policy Gate for a repo. Detects MCP dependencies locally and returns the YAML, secret name, and pilot link needed for setup.", {
+server.tool("generate_policy_gate_setup", "Generate the exact GitHub Actions workflow needed to enforce AgentScore Policy Gate for a repo. Detects MCP dependencies locally and returns the OIDC-based YAML needed for setup. No API key or secret is required.", {
     path: z.string().optional().describe("Optional path to the repo root. Defaults to the current working directory."),
     repo_url: z.string().optional().describe("Optional repository URL override for the pilot handoff link."),
 }, async (args) => handleTool("generate_policy_gate_setup", args));
+server.tool("install_policy_gate", "Write the AgentScore Policy Gate workflow file to this repo. Creates .github/workflows/agentscore-policy-gate.yml with OIDC authentication (no API key needed). Detects MCP dependencies and includes them in the workflow. The gate will auto-provision the repo on first push.", {
+    path: z.string().optional().describe("Optional path to the repo root. Defaults to the current working directory."),
+    repo_url: z.string().optional().describe("Optional repository URL override."),
+}, async (args) => handleTool("install_policy_gate", args));
 // --- Start ---
 async function main() {
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    console.error("AgentScore MCP server v2.1 running on stdio");
+    console.error("AgentScore MCP server v2.2 running on stdio");
 }
 main().catch((err) => {
     console.error("Fatal error:", err);
