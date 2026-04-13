@@ -1,6 +1,6 @@
 # @agentscore-xyz/mcp-server
 
-MCP security trust layer. Scan packages, get trust verdicts, check incident exposure, query the abuse database. Five tools for MCP security decisions. No API key, zero config.
+MCP security trust layer. Scan packages, get trust verdicts, inspect repo-wide MCP dependencies, generate Policy Gate setup, check incident exposure, and query the abuse database. Seven tools for MCP security decisions. No API key, zero config.
 
 [![KYA Scan](https://agentscores.xyz/api/scan/badge?npm=@agentscore-xyz/mcp-server)](https://agentscores.xyz/scan?npm=@agentscore-xyz/mcp-server)
 
@@ -45,15 +45,35 @@ Your AI can now make security decisions about MCP packages:
 >
 > **Claude:** *calls scan_package* "Score 75/100, MODERATE risk. Found: preinstall script modifying npm registry config. No provenance attestations."
 
+> **You:** "Check this repo for MCP dependencies"
+>
+> **Claude:** *calls check_my_repo* "MCP dependencies found: 5. Two are warnings. Run generate_policy_gate_setup to turn these checks into a CI gate."
+
+> **You:** "Set up AgentScore Policy Gate for this repo"
+>
+> **Claude:** *calls generate_policy_gate_setup* "Here is the exact GitHub Actions workflow, the AGENTSCORE_KEY secret name, and the pilot link for your repo."
+
 ## Available Tools
 
 | Tool | What it does |
 |------|-------------|
 | `scan_package` | Full security scan: install scripts, prompt injection, source code patterns, provenance posture, MCP tool extraction |
 | `get_verdict` | Trust decision: allow, warn, or block based on scan findings. Also reports monitoring status and publisher posture. |
+| `check_my_repo` | Inspect the current repo for MCP dependencies and summarise verdicts for every package detected locally. |
+| `generate_policy_gate_setup` | Generate the exact GitHub Actions workflow and pilot handoff link needed to enforce Policy Gate in CI. |
 | `check_exposure` | Incident response: which monitored MCP servers depend on a given package? |
 | `check_abuse` | Query the KYA abuse database for reported packages or agents |
 | `monitor_status` | Check if a package is under continuous monitoring and get scan history |
+
+## From Ad-Hoc Scans To CI Enforcement
+
+The MCP server now bridges one-off package checks into the sticky product:
+
+1. Run `check_my_repo` to see every MCP package used in a repo.
+2. Run `generate_policy_gate_setup` to get the exact GitHub Actions workflow.
+3. Start the free pilot to receive a repo-scoped `AGENTSCORE_KEY`.
+
+That turns "is this package safe?" into "this repo now enforces MCP dependency policy on every PR."
 
 ## Risk Levels
 
@@ -77,7 +97,7 @@ Your AI can now make security decisions about MCP packages:
 
 ## Monitoring
 
-AgentScore continuously monitors 60+ MCP packages. The `check_exposure` and `monitor_status` tools use this live dataset. When a package like axios gets compromised, you can instantly find which MCP servers are affected.
+AgentScore continuously monitors hundreds of MCP packages. The `check_exposure` and `monitor_status` tools use this live dataset. When a package like axios gets compromised, you can instantly find which MCP servers are affected.
 
 ## Links
 

@@ -1,4 +1,4 @@
-const BASE_URL = "https://agentscores.xyz";
+const BASE_URL = "https://www.agentscores.xyz";
 const TIMEOUT_MS = 8000;
 export class ApiError extends Error {
     status;

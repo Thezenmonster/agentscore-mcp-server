@@ -5,7 +5,7 @@ import { z } from "zod";
 import { handleTool } from "./tools.js";
 const server = new McpServer({
     name: "agentscore",
-    version: "2.0.2",
+    version: "2.1.0",
 });
 // --- Tools ---
 server.tool("scan_package", "Scan an npm package for MCP security issues. Checks install scripts, prompt injection patterns, suspicious URLs, source code patterns, dependency count, metadata completeness, and publisher provenance. Returns score (0-100), risk level, and detailed findings.", {
@@ -23,11 +23,18 @@ server.tool("check_abuse", "Check if a package or agent has been reported to the
 server.tool("monitor_status", "Check if an MCP package is under continuous monitoring and get its scan history. Shows current score, risk level, and recent changes.", {
     npm: z.string().describe("npm package name"),
 }, async (args) => handleTool("monitor_status", args));
+server.tool("check_my_repo", "Inspect the current repo for MCP dependencies, look up AgentScore verdicts for each package, and summarise what should be gated in CI. Use this when a developer wants to understand all MCP packages in a repo instead of scanning one package at a time.", {
+    path: z.string().optional().describe("Optional path to the repo root. Defaults to the current working directory."),
+}, async (args) => handleTool("check_my_repo", args));
+server.tool("generate_policy_gate_setup", "Generate the exact GitHub Actions workflow needed to enforce AgentScore Policy Gate for a repo. Detects MCP dependencies locally and returns the YAML, secret name, and pilot link needed for setup.", {
+    path: z.string().optional().describe("Optional path to the repo root. Defaults to the current working directory."),
+    repo_url: z.string().optional().describe("Optional repository URL override for the pilot handoff link."),
+}, async (args) => handleTool("generate_policy_gate_setup", args));
 // --- Start ---
 async function main() {
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    console.error("AgentScore MCP server v2.0 running on stdio");
+    console.error("AgentScore MCP server v2.1 running on stdio");
 }
 main().catch((err) => {
     console.error("Fatal error:", err);
