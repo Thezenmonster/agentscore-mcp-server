@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security disclosure (real vulnerability)
+    url: mailto:security@agentscores.xyz
+    about: For live credentials, RCE, auth bypass, or secrets in our infrastructure. Do NOT use the public issue forms below for actual vulnerabilities.
+  - name: Public security advisories
+    url: https://agentscores.xyz/security/advisories
+    about: Browse published advisories from the AgentScore monitor.
+  - name: Scanner precision changelog
+    url: https://agentscores.xyz/scanner/precision
+    about: See which mitigators shipped in recent ruleset versions and which detection patterns are tracked.

@@ -1,0 +1,69 @@
+name: "scanner: false positive"
+description: A finding flagged by the scanner that is not actually a security issue. Detection-accuracy report only — public, no confidentiality needed.
+title: "scanner: false positive on <package>@<version>"
+labels: ["scanner", "false-positive"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve scanner precision. False-positive reports are tracked publicly and feed directly into the mitigator system. Recent example: [HomenShum/nodebench-ai#8](https://github.com/HomenShum/nodebench-ai/issues/8) led to two mitigators shipping the same day.
+
+        **Not for security disclosures.** If you found a real vulnerability in AgentScore infrastructure, email security@agentscores.xyz instead.
+  - type: input
+    id: package
+    attributes:
+      label: Package
+      description: npm package name (including @scope if scoped)
+      placeholder: "@scope/package-name"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: "1.2.3"
+    validations:
+      required: true
+  - type: input
+    id: findings
+    attributes:
+      label: Finding(s) you believe are wrong
+      description: Severity + finding type. If multiple, comma-separate.
+      placeholder: "HIGH command_injection, MEDIUM unsafe_eval"
+    validations:
+      required: true
+  - type: textarea
+    id: source-pattern
+    attributes:
+      label: Source pattern that matched
+      description: Paste the file:line reference and the exact code that the scanner flagged. A minimal repro lets a mitigator be written.
+      placeholder: |
+        File: src/db/queries.js:42
+        Code: const rows = db.exec(`SELECT * FROM users WHERE id = ${userId}`);
+        Why this is not exploitable: better-sqlite3 .exec() is a SQL helper, not a shell.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: ruleset
+    attributes:
+      label: Ruleset digest
+      description: Shown on the report page footer. Helps us reproduce against the exact ruleset that flagged the finding.
+      placeholder: "3185eb87b4ce"
+  - type: input
+    id: report-url
+    attributes:
+      label: Report URL
+      description: Link to the AgentScore report page where you saw the finding.
+      placeholder: "https://agentscores.xyz/report/@scope/package-name"
+  - type: input
+    id: scanned-at
+    attributes:
+      label: Scan timestamp
+      description: Shown on the report page as "Last scanned".
+      placeholder: "2026-04-26T14:00:00Z"
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+      description: Anything else that would help us write a precise mitigator (sanitizer pattern, test_fixture pattern, etc.)

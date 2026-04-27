@@ -1,0 +1,80 @@
+name: "scanner: false negative (missed risk)"
+description: A real security issue in a package that the scanner did not flag. Detection-accuracy report — public, no confidentiality needed.
+title: "scanner: false negative on <package>@<version>"
+labels: ["scanner", "false-negative"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping the scanner catch what it currently misses. False-negative reports are tracked publicly and drive new pattern additions.
+
+        **Not for actively exploited vulnerabilities** in third-party packages with live impact. For those, follow the package maintainer's responsible-disclosure process first; we can republish as an advisory once the maintainer has been notified or the disclosure window has passed.
+
+        **Not for AgentScore infrastructure vulnerabilities.** Email security@agentscores.xyz instead.
+  - type: input
+    id: package
+    attributes:
+      label: Package
+      description: npm package name where the scanner missed the issue
+      placeholder: "@scope/package-name"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: "1.2.3"
+    validations:
+      required: true
+  - type: input
+    id: findings
+    attributes:
+      label: Finding type the scanner should have flagged
+      description: e.g. command_injection, unsafe_eval, hardcoded_secret, prompt_injection_metadata, install_script
+      placeholder: "command_injection"
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Suggested severity
+      options:
+        - LOW
+        - MEDIUM
+        - HIGH
+        - CRITICAL
+    validations:
+      required: true
+  - type: textarea
+    id: source-pattern
+    attributes:
+      label: Where the issue lives
+      description: file:line reference + exact code that should have triggered detection. Explain why this is exploitable.
+      placeholder: |
+        File: dist/tools/runShell.js:108
+        Code: exec(`cmd ${userInput}`)
+        Why exploitable: userInput flows from MCP tool argument with no validation; shell metacharacters reach the shell unescaped.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: ruleset
+    attributes:
+      label: Ruleset digest
+      description: From the report page footer.
+      placeholder: "3185eb87b4ce"
+  - type: input
+    id: report-url
+    attributes:
+      label: Report URL
+      placeholder: "https://agentscores.xyz/report/@scope/package-name"
+  - type: input
+    id: scanned-at
+    attributes:
+      label: Scan timestamp
+      placeholder: "2026-04-26T14:00:00Z"
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+      description: Anything else that would help us write a detection pattern.
